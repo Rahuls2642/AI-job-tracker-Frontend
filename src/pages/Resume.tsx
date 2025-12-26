@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { apiFetch } from "../lib/api";
 
@@ -13,6 +13,8 @@ export default function ResumePage() {
   const [message, setMessage] = useState("");
   const [resumes, setResumes] = useState<Resume[]>([]);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const loadResumes = async () => {
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
@@ -26,8 +28,19 @@ export default function ResumePage() {
     loadResumes();
   }, []);
 
+  const handleButtonClick = async () => {
+    // No file yet → open file picker
+    if (!file) {
+      fileInputRef.current?.click();
+      return;
+    }
+
+    // File exists → upload
+    handleUpload();
+  };
+
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || loading) return;
 
     setLoading(true);
     setMessage("");
@@ -51,12 +64,15 @@ export default function ResumePage() {
         }
       );
 
-      if (!res.ok) {
-        throw new Error("Upload failed");
-      }
+      if (!res.ok) throw new Error("Upload failed");
 
       setMessage("Resume uploaded successfully");
       setFile(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
       loadResumes();
     } catch (err: any) {
       setMessage(err.message || "Upload failed");
@@ -70,21 +86,34 @@ export default function ResumePage() {
       <h1 className="text-2xl font-bold mb-4">Resume</h1>
 
       <div className="bg-white p-4 rounded shadow mb-6">
+        {/* Hidden file input */}
         <input
+          ref={fileInputRef}
           type="file"
           accept="application/pdf"
+          className="hidden"
           onChange={(e) =>
             setFile(e.target.files ? e.target.files[0] : null)
           }
         />
 
         <button
-          onClick={handleUpload}
-          disabled={loading || !file}
-          className="mt-3 bg-black text-white px-4 py-2 rounded disabled:opacity-50"
+          onClick={handleButtonClick}
+          disabled={loading}
+          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
         >
-          {loading ? "Uploading..." : "Upload Resume"}
+          {loading
+            ? "Uploading..."
+            : file
+            ? "Upload Resume"
+            : "Choose Resume"}
         </button>
+
+        {file && (
+          <p className="mt-2 text-sm text-gray-600">
+            Selected: {file.name}
+          </p>
+        )}
 
         {message && (
           <p className="mt-2 text-sm text-gray-700">{message}</p>

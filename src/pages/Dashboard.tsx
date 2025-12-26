@@ -66,10 +66,8 @@ export default function Dashboard() {
               Dashboard
             </h1>
             <p className="text-slate-500 font-medium">
-              Welcome back,{" "}
-              <span className="text-[#4318FF]">
-                {user?.email?.split("@")[0] || "User"}
-              </span>
+              Welcome back{" "}
+          
             </p>
           </div>
 
