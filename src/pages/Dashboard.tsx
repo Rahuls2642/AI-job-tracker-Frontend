@@ -140,19 +140,7 @@ export default function Dashboard() {
             </ul>
           </div>
 
-          {/* Coach Workspace */}
-          <div className="xl:col-span-2 bg-white rounded-[28px] p-8 shadow-sm shadow-indigo-100/60">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-[#1B2559]">
-                Coach Workspace
-              </h2>
-              <button className="text-xs font-bold text-[#4318FF] bg-indigo-50 px-4 py-2 rounded-full">
-                View All
-              </button>
-            </div>
-
-            <ResumePage />
-          </div>
+        <ResumePage />
         </div>
       </div>
     </div>
