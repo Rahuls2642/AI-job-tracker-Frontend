@@ -9,6 +9,9 @@ export default function Navbar() {
       <Link to="/">Dashboard</Link>
       <Link to="/resume">Resume</Link>
       <Link to="/jobs">Jobs</Link>
+      <Link to="/reports" className="underline">
+  Reports
+</Link>
       <button onClick={logout} className="ml-auto">
         Logout
       </button>

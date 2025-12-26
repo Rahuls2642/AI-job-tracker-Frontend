@@ -29,6 +29,8 @@ type AnswerResult = {
   improvedAnswer: string;
 };
 
+const MAX_PRACTICE_PER_JOB = 3;
+
 export default function JobDetailPage() {
   const { id } = useParams();
 
@@ -39,55 +41,69 @@ export default function JobDetailPage() {
   const [atsLoading, setATSLoading] = useState(false);
   const [atsError, setATSError] = useState("");
 
-  // Interview questions
+  // Questions
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const [qLoading, setQLoading] = useState(false);
   const [qError, setQError] = useState("");
 
-  // Practice (scoped per question)
+  // Practice
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState("");
   const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null);
   const [answerLoading, setAnswerLoading] = useState(false);
+  const [practiceCount, setPracticeCount] = useState(0);
 
-  /* ---------------- LOAD JOB ONLY ---------------- */
+  
   useEffect(() => {
-    const loadJob = async () => {
+    const loadAll = async () => {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
       if (!token || !id) return;
 
-      const result = await apiFetch(`/jobs/${id}`, token);
-      setJob(result);
+      
+      const jobResult = await apiFetch(`/jobs/${id}`, token);
+      setJob(jobResult);
+
+     
+      try {
+        const atsResult = await apiFetch(`/ats/${id}`, token);
+        setATS(atsResult);
+      } catch {
+        
+      }
+
+      
+      try {
+        const qs = await apiFetch(`/interviews/${id}`, token);
+        setQuestions(qs);
+      } catch {
+    
+      }
     };
 
-    loadJob();
+    loadAll();
 
-    // 🔑 clear questions when leaving page
     return () => {
-      setQuestions([]);
       setActiveQuestionId(null);
+      setAnswerText("");
+      setAnswerResult(null);
     };
   }, [id]);
 
-  /* ---------------- ATS ---------------- */
+ 
   const runATS = async () => {
-    if (!id) return;
+    if (!id || ats) return; 
 
     setATSLoading(true);
     setATSError("");
-    setATS(null);
 
     try {
       const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) throw new Error("Not authenticated");
-
+      const token = data.session?.access_token!;
       const result = await apiFetch("/ats/analyze", token, {
         method: "POST",
         body: JSON.stringify({ jobId: id }),
       });
-
       setATS(result);
     } catch {
       setATSError("Failed to run ATS analysis");
@@ -96,79 +112,53 @@ export default function JobDetailPage() {
     }
   };
 
-  /* ---------------- QUESTIONS ---------------- */
-  const loadQuestions = async (token: string) => {
-    const result = await apiFetch(`/interviews/${id}`, token);
-    setQuestions(result);
-  };
-
-  const generateAllQuestions = async () => {
-    if (!id) return;
+  const generateQuestions = async (mode: "one" | "all") => {
+    if (!id || questions.length > 0) return; 
 
     setQLoading(true);
     setQError("");
 
     try {
       const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) throw new Error("Not authenticated");
+      const token = data.session?.access_token!;
 
-      await apiFetch(`/interviews/generate/${id}`, token, {
-        method: "POST",
-      });
+      const endpoint =
+        mode === "one"
+          ? `/interviews/generate-one/${id}`
+          : `/interviews/generate/${id}`;
 
-      await loadQuestions(token);
+      await apiFetch(endpoint, token, { method: "POST" });
+
+      const qs = await apiFetch(`/interviews/${id}`, token);
+      setQuestions(qs);
     } catch {
-      setQError("Failed to generate questions");
+      setQError("Too many requests. Please wait.");
     } finally {
       setQLoading(false);
     }
   };
 
-  const generateOneQuestion = async () => {
-    if (!id) return;
-
-    setQLoading(true);
-    setQError("");
-
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) throw new Error("Not authenticated");
-
-      await apiFetch(`/interviews/generate-one/${id}`, token, {
-        method: "POST",
-      });
-
-      await loadQuestions(token);
-    } catch {
-      setQError("Failed to generate question");
-    } finally {
-      setQLoading(false);
-    }
-  };
-
-  /* ---------------- ANSWERS ---------------- */
   const submitAnswer = async (questionId: string) => {
-    if (!answerText.trim()) return;
+    if (
+      !answerText.trim() ||
+      practiceCount >= MAX_PRACTICE_PER_JOB
+    )
+      return;
 
     setAnswerLoading(true);
     setAnswerResult(null);
 
     try {
       const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) throw new Error("Not authenticated");
+      const token = data.session?.access_token!;
 
       const result = await apiFetch("/answers", token, {
         method: "POST",
-        body: JSON.stringify({
-          questionId,
-          answer: answerText,
-        }),
+        body: JSON.stringify({ questionId, answer: answerText }),
       });
 
       setAnswerResult(result);
+      setPracticeCount((c) => c + 1);
     } finally {
       setAnswerLoading(false);
     }
@@ -181,67 +171,56 @@ export default function JobDetailPage() {
       <h1 className="text-2xl font-bold">{job.role}</h1>
       <p className="text-gray-600 mb-4">{job.company}</p>
 
-      <p className="mb-4 whitespace-pre-wrap">{job.description}</p>
-
+      {/* ATS */}
       <button
         onClick={runATS}
-        disabled={atsLoading}
-        className="bg-black text-white px-4 py-2 rounded"
+        disabled={atsLoading || !!ats}
+        className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
       >
-        {atsLoading ? "Analyzing..." : "Run ATS Analysis"}
+        {ats ? "ATS Completed" : "Run ATS Analysis"}
       </button>
 
       {ats && (
         <div className="mt-4 bg-white p-4 rounded shadow">
-          <p>
-            <b>Match:</b> {ats.matchScore}%
-          </p>
-          <p>
-            <b>Suggestions:</b> {ats.suggestions}
-          </p>
+          <p><b>Match:</b> {ats.matchScore}%</p>
+          <p><b>Suggestions:</b> {ats.suggestions}</p>
         </div>
       )}
 
-      
+      {/* QUESTIONS */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-3">Interview Questions</h2>
 
-        <div className="flex gap-3 mb-4">
-          <button
-            onClick={generateOneQuestion}
-            disabled={qLoading}
-            className="border px-3 py-2 rounded disabled:opacity-50"
-          >
-            {qLoading ? "Generating..." : "Generate 1 Question"}
-          </button>
+        {questions.length === 0 && (
+          <div className="flex gap-3 mb-4">
+            <button
+              disabled={qLoading}
+              onClick={() => generateQuestions("one")}
+              className="border px-3 py-2 rounded"
+            >
+              Generate 1 Question
+            </button>
 
-          <button
-            onClick={generateAllQuestions}
-            disabled={qLoading}
-            className="border px-3 py-2 rounded disabled:opacity-50"
-          >
-            {qLoading ? "Generating..." : "Generate All Questions"}
-          </button>
-
-         
-        </div>
+            <button
+              disabled={qLoading}
+              onClick={() => generateQuestions("all")}
+              className="border px-3 py-2 rounded"
+            >
+              Generate All Questions
+            </button>
+          </div>
+        )}
 
         {qError && <p className="text-red-600">{qError}</p>}
-
-        {questions.length === 0 && (
-          <p className="text-gray-500">
-            No questions yet. Generate to start practicing.
-          </p>
-        )}
 
         <div className="space-y-4">
           {questions.map((q) => (
             <div key={q.id} className="bg-gray-100 p-4 rounded">
-              <p className="text-sm text-gray-500 capitalize">{q.category}</p>
+              <p className="text-sm text-gray-500">{q.category}</p>
               <p className="font-medium">{q.question}</p>
 
               <button
-                className="mt-2 text-sm underline"
+                className="mt-2 underline text-sm"
                 onClick={() => {
                   setActiveQuestionId(q.id);
                   setAnswerText("");
@@ -254,30 +233,31 @@ export default function JobDetailPage() {
               {activeQuestionId === q.id && (
                 <div className="mt-3">
                   <textarea
-                    className="w-full border p-2 rounded"
                     rows={4}
+                    className="w-full border p-2"
                     value={answerText}
                     onChange={(e) => setAnswerText(e.target.value)}
                   />
 
                   <button
+                    disabled={answerLoading || practiceCount >= MAX_PRACTICE_PER_JOB}
                     onClick={() => submitAnswer(q.id)}
                     className="mt-2 bg-black text-white px-4 py-2 rounded"
                   >
-                    {answerLoading ? "Evaluating..." : "Submit"}
+                    Submit
                   </button>
+
+                  {practiceCount >= MAX_PRACTICE_PER_JOB && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Practice limit reached for this job.
+                    </p>
+                  )}
 
                   {answerResult && (
                     <div className="mt-3 bg-white p-3 rounded shadow">
-                      <p>
-                        <b>Score:</b> {answerResult.score}/10
-                      </p>
-                      <p>
-                        <b>Feedback:</b> {answerResult.feedback}
-                      </p>
-                      <p>
-                        <b>Improved:</b> {answerResult.improvedAnswer}
-                      </p>
+                      <p><b>Score:</b> {answerResult.score}/10</p>
+                      <p><b>Feedback:</b> {answerResult.feedback}</p>
+                      <p><b>Improved:</b> {answerResult.improvedAnswer}</p>
                     </div>
                   )}
                 </div>

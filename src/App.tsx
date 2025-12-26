@@ -9,6 +9,7 @@ import ResumePage from "./pages/Resume";
 import JobsPage from "./pages/Jobs";
 import JobDetailPage from "./pages/JobDetail";
 import Layout from "./components/Layout";
+import ReportsPage from "./pages/Report";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/resume" element={<ResumePage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/jobs/:id" element={<JobDetailPage />} />
+            <Route path='/reports' element={<ReportsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
