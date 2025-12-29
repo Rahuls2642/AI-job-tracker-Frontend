@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import ResumePage from "./Resume";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, Target, Mic2, FileCheck, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  Briefcase,
+  FileCheck,
+  Mic2,
+  Target,
+  ChevronRight,
+} from "lucide-react";
 
 type Overview = {
   totalJobs: number;
@@ -14,233 +20,211 @@ type Overview = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
- 
   const [data, setData] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const ViewReport=()=>{
-    navigate("/reports");
-  }
 
   useEffect(() => {
-    const loadData = async () => {
+    const load = async () => {
       try {
-        const session = await import("../lib/supabase").then(m => m.supabase.auth.getSession());
+        const session = await import("../lib/supabase").then(m =>
+          m.supabase.auth.getSession()
+        );
         const token = session.data.session?.access_token;
         if (!token) return;
-        const result = await apiFetch("/reports/overview", token);
-        setData(result);
+
+        const res = await apiFetch("/reports/overview", token);
+        setData(res);
       } catch {
         setError("Failed to load dashboard");
       } finally {
         setLoading(false);
       }
     };
-    loadData();
+    load();
   }, []);
 
-  if (loading) return <LoadingSkeleton />;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading) return <Skeleton />;
+  if (error) return <Error message={error} />;
   if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
-      <div className="max-w-[1400px] mx-auto px-6 py-12 space-y-10">
-        
-        
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="max-w-[1320px] mx-auto px-6 py-8 space-y-8">
+
+        {/* Header */}
+        <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-              Overview
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Dashboard
             </h1>
-            <p className="text-slate-500 mt-1 text-lg">
-              Welcome back,
+            <p className="text-sm text-slate-500 mt-0.5">
+              Your job search at a glance
             </p>
           </div>
-          <button onClick={ViewReport} className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm">
-            View Reports <ChevronRight size={16} />
+
+          <button
+            onClick={() => navigate("/reports")}
+            className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition"
+          >
+            Reports <ChevronRight size={16} />
           </button>
         </header>
 
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard 
-            label="Total Jobs" 
-            value={data.totalJobs} 
-            icon={<Briefcase className="text-blue-600" size={20} />} 
-            trend="+12% from last month"
+        {/* Stats */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Metric
+            label="Jobs tracked"
+            value={data.totalJobs}
+            icon={<Briefcase size={18} />}
           />
-          <StatCard 
-            label="Avg. ATS Score" 
-            value={`${data.averageATSScore}%`} 
-            icon={<FileCheck className="text-emerald-600" size={20} />} 
-            trend="Top 5% of candidates"
+          <Metric
+            label="ATS score"
+            value={`${data.averageATSScore}%`}
+            icon={<FileCheck size={18} />}
           />
-          <StatCard 
-            label="Interview Score" 
-            value={`${data.averageInterviewScore}/100`} 
-            icon={<Mic2 className="text-indigo-600" size={20} />} 
-            trend="Improving weekly"
+          <Metric
+            label="Interview score"
+            value={data.averageInterviewScore}
+            icon={<Mic2 size={18} />}
           />
-          <StatCard 
-            label="Practiced" 
-            value={data.answersPracticed} 
-            icon={<Target className="text-orange-600" size={20} />} 
-            trend="Ready for interview"
+          <Metric
+            label="Answers practiced"
+            value={data.answersPracticed}
+            icon={<Target size={18} />}
           />
-        </div>
+        </section>
 
-       
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white rounded-2xl p-8 border border-slate-200/60 shadow-sm transition-all hover:shadow-md">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <TrendingUp size={20} className="text-indigo-500" />
-                Performance Overview
-              </h2>
-              <div className="flex gap-4 text-xs font-medium text-slate-400">
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-900" /> ATS</span>
-                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500" /> Interview</span>
-              </div>
-            </div>
-            <LineChart ats={data.averageATSScore} interview={data.averageInterviewScore} />
+        {/* Main grid */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Performance */}
+          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-slate-700 mb-4">
+              Performance trend
+            </h2>
+            <LineChart
+              ats={data.averageATSScore}
+              interview={data.averageInterviewScore}
+            />
           </div>
 
-          <div className="bg-white rounded-2xl p-8 border border-slate-200/60 shadow-sm transition-all hover:shadow-md">
-            <h2 className="text-lg font-bold mb-8">Jobs by Status</h2>
-            <DonutChart data={data.jobsByStatus} />
-            <div className="mt-8 space-y-3">
-              {Object.entries(data.jobsByStatus).map(([status, count], i) => (
-                <div key={status} className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500 capitalize">{status}</span>
-                  <span className="font-semibold text-slate-700">{count}</span>
+          {/* Status */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-slate-700 mb-4">
+              Job status
+            </h2>
+
+            <div className="space-y-3">
+              {Object.entries(data.jobsByStatus).map(([status, count]) => (
+                <div
+                  key={status}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span className="capitalize text-slate-500">
+                    {status}
+                  </span>
+                  <span className="font-medium">{count}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        
-        <div className="pt-10 border-t border-slate-200">
+        {/* Resume */}
+        <section className="border-t border-slate-200 pt-6">
           <ResumePage />
-        </div>
+        </section>
       </div>
     </div>
   );
 }
 
+/* -------------------- Components -------------------- */
 
-
-function StatCard({ label, value, icon, trend }: { label: string; value: any; icon: React.ReactNode; trend: string }) {
+function Metric({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: any;
+  icon: React.ReactNode;
+}) {
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-all group">
-      <div className="flex items-center justify-between mb-4">
-        <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-indigo-50 transition-colors">
-          {icon}
-        </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-1 rounded">Active</span>
+    <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4">
+      <div className="text-slate-500">{icon}</div>
+      <div>
+        <p className="text-xs text-slate-500">{label}</p>
+        <p className="text-xl font-semibold tracking-tight">{value}</p>
       </div>
-      <p className="text-slate-500 text-sm font-medium">{label}</p>
-      <p className="text-3xl font-bold text-slate-900 mt-1 tracking-tight">{value}</p>
-      <p className="text-xs text-slate-400 mt-4 flex items-center gap-1">
-        {trend}
-      </p>
     </div>
   );
 }
 
-function LineChart({ ats, interview }: { ats: number; interview: number }) {
-  const atsY = 120 - (ats * 0.8);
-  const interviewY = 120 - (interview * 0.8);
+function LineChart({
+  ats,
+  interview,
+}: {
+  ats: number;
+  interview: number;
+}) {
+  const a = 100 - ats;
+  const i = 100 - interview;
 
   return (
-    <div className="relative w-full h-64 flex items-end">
-      <svg viewBox="0 0 400 160" className="w-full h-full drop-shadow-sm" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="colorAts" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#0F172A" stopOpacity={0.1}/>
-            <stop offset="95%" stopColor="#0F172A" stopOpacity={0}/>
-          </linearGradient>
-        </defs>
-        {[0, 40, 80, 120].map(y => (
-          <line key={y} x1="0" x2="400" y1={y} y2={y} stroke="#F1F5F9" strokeWidth="1" />
+    <svg
+      viewBox="0 0 400 120"
+      className="w-full h-40"
+      preserveAspectRatio="none"
+    >
+      {[30, 60, 90].map(y => (
+        <line
+          key={y}
+          x1="0"
+          x2="400"
+          y1={y}
+          y2={y}
+          stroke="#E2E8F0"
+          strokeWidth="1"
+        />
+      ))}
+
+      <polyline
+        fill="none"
+        stroke="#0F172A"
+        strokeWidth="2"
+        points={`0,${a} 100,${a - 8} 200,${a + 6} 300,${a - 4} 400,${a}`}
+      />
+
+      <polyline
+        fill="none"
+        stroke="#6366F1"
+        strokeWidth="2"
+        points={`0,${i} 100,${i + 6} 200,${i - 4} 300,${i + 8} 400,${i}`}
+      />
+    </svg>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="max-w-[1320px] mx-auto px-6 py-8 space-y-6 animate-pulse">
+      <div className="h-6 w-40 bg-slate-200 rounded" />
+      <div className="grid grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="h-20 bg-slate-200 rounded-xl" />
         ))}
-        <polyline
-          fill="none"
-          stroke="#0F172A"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          points={`0,${atsY} 100,${atsY - 15} 200,${atsY + 5} 300,${atsY - 20} 400,${atsY - 10}`}
-        />
-        <polyline
-          fill="none"
-          stroke="#6366F1"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          points={`0,${interviewY} 100,${interviewY + 10} 200,${interviewY - 5} 300,${interviewY + 15} 400,${interviewY}`}
-        />
-      </svg>
-    </div>
-  );
-}
-
-function DonutChart({ data }: { data: Record<string, number> }) {
-  const total = Object.values(data).reduce((a, b) => a + b, 0);
-  let offset = 0;
-  const colors = ["#0F172A", "#6366F1", "#94A3B8", "#F1F5F9"];
-
-  return (
-    <div className="relative flex justify-center items-center">
-      <svg viewBox="0 0 120 120" className="w-48 h-48 transform -rotate-90">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#F8FAFC" strokeWidth="12" />
-        {Object.entries(data).map(([_, value], i) => {
-          const dash = (value / total) * 314;
-          const strokeDasharray = `${dash} 314`;
-          const el = (
-            <circle
-              key={i}
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke={colors[i % colors.length]}
-              strokeWidth="12"
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={-offset}
-              strokeLinecap="round"
-              className="transition-all duration-1000 ease-out"
-            />
-          );
-          offset += dash;
-          return el;
-        })}
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold">{total}</span>
-        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Jobs</span>
       </div>
+      <div className="h-40 bg-slate-200 rounded-xl" />
     </div>
   );
 }
 
-function LoadingSkeleton() {
-  return (
-    <div className="p-10 max-w-[1400px] mx-auto animate-pulse space-y-8">
-      <div className="h-10 w-48 bg-slate-200 rounded-lg" />
-      <div className="grid grid-cols-4 gap-6">
-        {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-2xl" />)}
-      </div>
-      <div className="h-64 bg-slate-100 rounded-2xl" />
-    </div>
-  );
-}
-
-function ErrorMessage({ message }: { message: string }) {
+function Error({ message }: { message: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium">
+      <div className="text-sm font-medium text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-lg">
         {message}
       </div>
     </div>

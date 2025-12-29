@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { apiFetch } from "../lib/api";
+import { Upload, FileText } from "lucide-react";
 
 type Resume = {
   id: string;
@@ -28,15 +29,12 @@ export default function ResumePage() {
     loadResumes();
   }, []);
 
-  const handleButtonClick = async () => {
-    // No file yet → open file picker
+  const handleButtonClick = () => {
     if (!file) {
       fileInputRef.current?.click();
-      return;
+    } else {
+      handleUpload();
     }
-
-    // File exists → upload
-    handleUpload();
   };
 
   const handleUpload = async () => {
@@ -68,10 +66,7 @@ export default function ResumePage() {
 
       setMessage("Resume uploaded successfully");
       setFile(null);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
       loadResumes();
     } catch (err: any) {
@@ -82,65 +77,103 @@ export default function ResumePage() {
   };
 
   return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-bold mb-4">Resume</h1>
+  <div className="min-h-screen bg-slate-50">
+   
+    <div className="px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-8">
+        <section className="bg-white border border-slate-200 rounded-xl p-6 space-y-6">
 
-      <div className="bg-white p-4 rounded shadow mb-6">
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/pdf"
-          className="hidden"
-          onChange={(e) =>
-            setFile(e.target.files ? e.target.files[0] : null)
-          }
-        />
+       
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Resume
+            </h2>
+            <p className="text-sm text-slate-500">
+              Upload and manage the resume used for ATS analysis.
+            </p>
+          </div>
 
-        <button
-          onClick={handleButtonClick}
-          disabled={loading}
-          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
-        >
-          {loading
-            ? "Uploading..."
-            : file
-            ? "Upload Resume"
-            : "Choose Resume"}
-        </button>
+      
+          <div className="border border-dashed border-slate-300 rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 bg-slate-50">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) =>
+                setFile(e.target.files ? e.target.files[0] : null)
+              }
+            />
 
-        {file && (
-          <p className="mt-2 text-sm text-gray-600">
-            Selected: {file.name}
-          </p>
-        )}
+            <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+              <Upload size={18} className="text-indigo-600" />
+            </div>
 
-        {message && (
-          <p className="mt-2 text-sm text-gray-700">{message}</p>
-        )}
-      </div>
+            <div>
+              <p className="text-sm font-medium text-slate-700">
+                {file ? file.name : "Upload your resume (PDF)"}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Used for ATS scoring & interview prep
+              </p>
+            </div>
 
-      <div>
-        <h2 className="font-semibold mb-2">Uploaded Resumes</h2>
-
-        {resumes.length === 0 && (
-          <p className="text-sm text-gray-500">
-            No resumes uploaded yet.
-          </p>
-        )}
-
-        <ul className="space-y-2">
-          {resumes.map((r) => (
-            <li
-              key={r.id}
-              className="bg-gray-100 p-2 rounded text-sm"
+            <button
+              onClick={handleButtonClick}
+              disabled={loading}
+              className="
+                mt-2 inline-flex items-center gap-2
+                px-4 py-2
+                text-sm font-medium
+                rounded-lg
+                bg-indigo-600 text-white
+                hover:bg-indigo-700
+                transition
+                disabled:opacity-50
+              "
             >
-              Uploaded on{" "}
-              {new Date(r.createdAt).toLocaleDateString()}
-            </li>
-          ))}
-        </ul>
-      </div>
+              {loading ? "Uploading…" : file ? "Upload Resume" : "Choose File"}
+            </button>
+
+            {message && (
+              <p className="text-xs text-slate-600 mt-2">
+                {message}
+              </p>
+            )}
+          </div>
+
+         
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-slate-700">
+              Uploaded resumes
+            </h3>
+
+            {resumes.length === 0 && (
+              <p className="text-sm text-slate-500">
+                No resumes uploaded yet.
+              </p>
+            )}
+
+            <ul className="space-y-2">
+              {resumes.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex items-center gap-3 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+                >
+                  <FileText size={16} className="text-slate-500" />
+                  <span className="text-slate-700">
+                    Uploaded on{" "}
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+        </section>
+      </main>
     </div>
-  );
+  </div>
+);
+
 }

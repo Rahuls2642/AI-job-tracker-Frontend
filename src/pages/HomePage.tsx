@@ -47,7 +47,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
+     
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-6 py-24">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -69,7 +69,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer note */}
+      
       <section className="border-t border-zinc-200 bg-zinc-50">
         <div className="max-w-7xl mx-auto px-6 py-10 text-sm text-zinc-500">
           Built for individuals, not recruiters. Your data stays private.

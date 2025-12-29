@@ -27,84 +27,103 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="w-full max-w-md">
-        
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-sm">
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 w-full"
-        >
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create Account</h1>
-            <p className="text-slate-500 text-sm mt-2 font-medium">Join us and start mastering your interviews.</p>
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+              Create account
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Start preparing smarter for your job search.
+            </p>
           </div>
 
+         
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 text-xs font-bold p-3 rounded-lg mb-6 flex items-center gap-2">
-              <span className="w-1 h-1 bg-red-600 rounded-full animate-pulse"></span>
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
+       
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
-                Email Address
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Email
               </label>
               <input
                 type="email"
-                placeholder="name@email.com"
-                className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                required
+                placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
+                className="
+                  w-full rounded-lg border border-slate-300
+                  px-3 py-2 text-sm
+                  outline-none
+                  focus:ring-2 focus:ring-indigo-500
+                  focus:border-indigo-500
+                  transition
+                "
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
                 Password
               </label>
               <input
                 type="password"
-                placeholder="Create a strong password"
-                className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                required
+                placeholder="Create a secure password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                className="
+                  w-full rounded-lg border border-slate-300
+                  px-3 py-2 text-sm
+                  outline-none
+                  focus:ring-2 focus:ring-indigo-500
+                  focus:border-indigo-500
+                  transition
+                "
               />
+              <p className="mt-1 text-xs text-slate-400">
+                Use at least 8 characters.
+              </p>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl mt-8 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-slate-200"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Creating account...
-              </span>
-            ) : (
-              "Get Started"
-            )}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="
+                mt-6 w-full rounded-lg
+                bg-indigo-600 text-white
+                py-2.5 text-sm font-medium
+                hover:bg-indigo-700
+                transition
+                disabled:opacity-50
+              "
+            >
+              {loading ? "Creating account…" : "Create account"}
+            </button>
+          </form>
 
-          <p className="text-sm mt-8 text-center text-slate-500 font-medium">
+          
+          <p className="mt-6 text-center text-sm text-slate-500">
             Already have an account?{" "}
-            <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-700 underline underline-offset-4 transition-colors">
-              Sign In
+            <Link
+              to="/login"
+              className="font-medium text-indigo-600 hover:text-indigo-700"
+            >
+              Sign in
             </Link>
           </p>
-        </form>
+        </div>
 
-        <p className="text-center text-slate-400 text-[10px] mt-8 font-medium tracking-tight uppercase tracking-widest">
-          Secure Registration • Powered by AI
+        <p className="mt-6 text-center text-xs text-slate-400">
+          Secure sign-up • No spam • Cancel anytime
         </p>
       </div>
     </div>
