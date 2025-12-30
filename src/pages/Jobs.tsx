@@ -150,7 +150,7 @@ export default function JobsPage() {
               <h2 className="font-semibold flex items-center gap-2">
                 <Briefcase size={16} className="text-slate-400" /> Applications
               </h2>
-              <p className="text-xs text-slate-900 mt-1">Track your job applications and practice interviews.</p>
+              <p className="text-xs text-slate-500 mt-1">Track your job applications and practice interviews.</p>
             </div>
 
             
@@ -178,7 +178,7 @@ export default function JobsPage() {
                       </span>
                       <Link
                         to={`/jobs/${job.id}`}
-                        className="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition"
+                        className="text-xs text-slate-500 font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition"
                       >
                       RUN ATS AND PRACTICE INTERVIEWS
                       </Link>
