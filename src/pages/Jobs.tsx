@@ -89,7 +89,8 @@ export default function JobsPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] bg-slate-50 text-slate-900 overflow-hidden">
+   <div className="min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] bg-slate-50 text-slate-900 lg:overflow-hidden">
+
       <div className="max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6 h-full">
       
         <header className="flex-shrink-0">
@@ -97,7 +98,8 @@ export default function JobsPage() {
           <p className="text-sm text-slate-500 mt-1">Track applications in real-time.</p>
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+       <div className="flex flex-col lg:flex-row gap-6 flex-1">
+
        
           <aside className="lg:w-80 w-full flex-shrink-0">
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
@@ -145,7 +147,8 @@ export default function JobsPage() {
           </aside>
 
         
-          <main className="flex-1 bg-white rounded-2xl border border-slate-200 flex flex-col min-h-0 overflow-hidden">
+         <main className="flex-1 bg-white rounded-2xl border border-slate-200 flex flex-col lg:min-h-0 lg:overflow-hidden">
+
             <div className="p-4 border-b border-slate-100 flex-shrink-0">
               <h2 className="font-semibold flex items-center gap-2">
                 <Briefcase size={16} className="text-slate-400" /> Applications
@@ -161,7 +164,7 @@ export default function JobsPage() {
                 jobs.map((job) => (
                   <div
                     key={job.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition"
+                    className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 transition"
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
