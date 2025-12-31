@@ -1,5 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
-
+const API_URL = "https://ai-powered-job-application-interview-uk8s.onrender.com"
 export const apiFetch = async (
   path: string,
   token?: string,
