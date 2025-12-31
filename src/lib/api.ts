@@ -1,22 +1,17 @@
-const API_URL = "https://ai-powered-job-application-interview-uk8s.onrender.com"
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const apiFetch = async (
   path: string,
-  token?: string,
+  token: string,
   options: RequestInit = {}
 ) => {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(options.headers as Record<string, string> | undefined),
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers,
-    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.headers || {}),
+    },
   });
 
   if (!res.ok) {
