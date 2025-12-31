@@ -14,7 +14,7 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-6 pt-28 pb-24">
           <div className="max-w-3xl">
             <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700 mb-6">
-              Clario · your job command center
+              Interview Master · your job command center
             </span>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight">
@@ -24,7 +24,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 text-zinc-700 text-lg leading-relaxed max-w-2xl">
-              Clario turns your job search into something you can actually
+              Interview Master turns your job search into something you can actually
               understand. Track applications, see what’s blocking you, and
               practice interviews with purpose—not hope.
             </p>
