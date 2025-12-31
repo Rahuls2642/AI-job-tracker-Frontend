@@ -155,19 +155,26 @@ export default function ResumePage() {
             )}
 
             <ul className="space-y-2">
-              {resumes.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex items-center gap-3 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
-                >
-                  <FileText size={16} className="text-slate-500" />
-                  <span className="text-slate-700">
-                    Uploaded on{" "}
-                    {new Date(r.createdAt).toLocaleDateString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
+  {[...resumes]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    )
+    .map((r) => (
+      <li
+        key={r.id}
+        className="flex items-center gap-3 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+      >
+        <FileText size={16} className="text-slate-500" />
+        <span className="text-slate-700">
+          Uploaded on{" "}
+          {new Date(r.createdAt).toLocaleDateString()}
+        </span>
+      </li>
+    ))}
+</ul>
+
           </div>
 
         </section>
