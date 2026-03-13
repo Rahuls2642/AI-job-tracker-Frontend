@@ -112,32 +112,49 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <LineChart
-              ats={data.averageATSScore}
-              interview={data.averageInterviewScore}
-            />
+           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div className="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 className="text-sm font-semibold text-slate-700 mb-2">
+      ATS Score
+    </h2>
 
-            <div className="mt-4 grid grid-cols-2 gap-4 text-xs text-slate-600">
-              <div>
-                <p className="font-medium text-slate-700">ATS score</p>
-                <p>
-                  Your resume currently matches job descriptions at{" "}
-                  <span className="font-semibold">{data.averageATSScore}%</span>
-                  .
-                </p>
-              </div>
+    <p className="text-3xl font-semibold text-slate-900">
+      {data.averageATSScore}%
+    </p>
 
-              <div>
-                <p className="font-medium text-slate-700">Interview score</p>
-                <p>
-                  Based on practice answers, your interview readiness is{" "}
-                  <span className="font-semibold">
-                    {data.averageInterviewScore}/100
-                  </span>
-                  .
-                </p>
-              </div>
-            </div>
+    <p className="text-xs text-slate-500 mt-2">
+      Your resume currently matches job descriptions at this rate.
+    </p>
+
+    <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-slate-900"
+        style={{ width: `${data.averageATSScore}%` }}
+      />
+    </div>
+  </div>
+
+  <div className="bg-white border border-slate-200 rounded-xl p-6">
+    <h2 className="text-sm font-semibold text-slate-700 mb-2">
+      Interview Readiness
+    </h2>
+
+    <p className="text-3xl font-semibold text-slate-900">
+      {data.averageInterviewScore}/100
+    </p>
+
+    <p className="text-xs text-slate-500 mt-2">
+      Based on your practice interview answers.
+    </p>
+
+    <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-indigo-500"
+        style={{ width: `${data.averageInterviewScore}%` }}
+      />
+    </div>
+  </div>
+</section>
           </div>
 
        
@@ -240,45 +257,6 @@ function Metric({
         <p className="text-xl font-semibold tracking-tight">{value}</p>
       </div>
     </div>
-  );
-}
-
-function LineChart({ ats, interview }: { ats: number; interview: number }) {
-  const a = 100 - ats;
-  const i = 100 - interview;
-
-  return (
-    <svg
-      viewBox="0 0 400 120"
-      className="w-full h-40"
-      preserveAspectRatio="none"
-    >
-      {[30, 60, 90].map((y) => (
-        <line
-          key={y}
-          x1="0"
-          x2="400"
-          y1={y}
-          y2={y}
-          stroke="#E2E8F0"
-          strokeWidth="1"
-        />
-      ))}
-
-      <polyline
-        fill="none"
-        stroke="#0F172A"
-        strokeWidth="2"
-        points={`0,${a} 100,${a - 8} 200,${a + 6} 300,${a - 4} 400,${a}`}
-      />
-
-      <polyline
-        fill="none"
-        stroke="#6366F1"
-        strokeWidth="2"
-        points={`0,${i} 100,${i + 6} 200,${i - 4} 300,${i + 8} 400,${i}`}
-      />
-    </svg>
   );
 }
 
